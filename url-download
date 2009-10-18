@@ -1,0 +1,29 @@
+#!/bin/bash
+wget -q http://www.google.com/reader/shared/03682581869898758301 --output-document=feeds
+#toget=`grep "\"http://librivox.org/.*\"" feeds --only-matching`
+toget=`cat getlist`
+for arg in $toget
+do
+    url=$arg
+    downloaded=`grep $url downloaded.log`
+    if [ "$downloaded" == "" ]
+    then
+	echo "downloading $url"
+	wget -q $url --output-document=librivox.html
+	oggs=`grep "\"http://www.archive.org/download/.*ogg\"" librivox.html --only-matching`
+	title=`grep "<title>LibriVox   &raquo; .*</title>" librivox.html --only-matching | sed -e 's/<title>LibriVox   &raquo; //' | sed -e 's/<\/title>//'`
+	rm librivox.html
+	echo $title
+	mkdir "$title"
+	for oggfile in $oggs
+	do
+	    oggurl=`echo $oggfile | sed -e 's/\"$//' | sed -e 's/^\"//'`
+	    echo `basename $oggurl` >> "$title/$title.m3u"
+	    wget $oggurl --output-document="$title/`basename $oggurl`"
+	done
+	echo $url >> downloaded.log
+    else
+	echo "skipping download of $url, already downloaded"
+	echo
+    fi
+done
