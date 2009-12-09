@@ -34,3 +34,4 @@ do
     nextpage=`grep "\"http://www.google.com/reader/shared/03682581869898758301.*\"" feeds --only-matching | sed -e 's/\"$//' | sed -e 's/^\"//'`
     toget=`grep "\"http://librivox.org/.*\"" feeds --only-matching`
 done
+rm feeds
